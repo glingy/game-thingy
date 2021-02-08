@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "name": "wasm",
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "defines": [],
+            "compilerPath": "/Users/gregory/.brew/opt/llvm/bin/clang",
+            "cStandard": "c17",
+            "cppStandard": "c++14",
+            "intelliSenseMode": "clang-x64",
+            "compilerArgs": [
+                "--target=wasm32",
+                "-nostdlib",
+                "-Wl,--no-entry",
+                "-Wl,--export-all",
+                "-Wl,--allow-undefined",
+                "-O3"
+            ]
+        }
+    ],
+    "version": 4
+}

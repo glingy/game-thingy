@@ -1,0 +1,19 @@
+{
+    "configurations": [
+        {
+            "name": "uWebSockets",
+            "includePath": [
+                "${workspaceFolder}/src",
+                "${workspaceFolder}/lib/uWebSockets/uSockets/src",
+                "${workspaceFolder}/lib/uWebSockets/src"
+            ],
+            "defines": [],
+            "macFrameworkPath": [],
+            "compilerPath": "/Users/gregory/.brew/bin/g++-10",
+            "cStandard": "c17",
+            "cppStandard": "c++20",
+            "intelliSenseMode": "gcc-x64"
+        }
+    ],
+    "version": 4
+}
