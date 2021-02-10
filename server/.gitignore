@@ -1,2 +1,4 @@
 data/*
-
+build/*
+lib/uWebSockets/uSockets/*.o
+lib/uWebSockets/uSockets/*.a

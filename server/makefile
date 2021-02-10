@@ -1,11 +1,9 @@
 EXAMPLE_FILES := HelloWorld ServerName EchoServer BroadcastingEchoServer UpgradeSync UpgradeAsync
 THREADED_EXAMPLE_FILES := HelloWorldThreaded EchoServerThreaded
-SQL_DIR := ./lib/mysql
-SQL_CPPFLAGS := -DSTATIC_CONCPP -I $(SQL_DIR)/include
-SQL_LDLIBS = $(SQL_DIR)/lib64/libmysqlcppconn8-static.a
-override CXXFLAGS += $(SQL_CPPFLAGS) -lpthread -Wpedantic -Wall -Wextra -Wsign-conversion -Wconversion -std=c++20 -Ilib/uWebSockets/uSockets/src -Ilib/uWebSockets/src
-override LDFLAGS += $(SQL_LDLIBS) lib/uWebSockets/uSockets/*.o -lz
-CXX := ~/.brew/Cellar/gcc/10.2.0/bin/g++-10
+override CXXFLAGS += -lpthread -Wpedantic -Wall -Wextra -Wsign-conversion -Wconversion -std=c++20 -Ilib/uWebSockets/uSockets/src -Ilib/uWebSockets/src
+override LDFLAGS += lib/uWebSockets/uSockets/uSockets.a -lz -lmysqlclient -lstdc++
+CXX := g++-10
+CC := gcc-10
 
 DESTDIR ?=
 
@@ -39,20 +37,26 @@ endif
 
 SRCS := $(wildcard src/*.cpp)
 FILES := $(patsubst %.cpp,%,$(SRCS))
+OBJS := $(patsubst src/%.cpp,build/%.o,$(SRCS))
 
 .PHONY: server
 
-server:
-	$(MAKE) lib/uWebSockets/uSockets
-	mkdir -p build
-	for FILE in $(patsubst src/%,%,$(FILES)); do $(CXX) -flto $(CXXFLAGS) src/$$FILE.cpp -c -o build/$$FILE.o ;done
-	$(CXX) -flto $(CXXFLAGS) $(patsubst src/%,build/%.o,$(FILES)) $(LDFLAGS) -o build/server;
+server: _build $(OBJS)
+	@if [ ! -f lib/uWebSockets/uSockets/uSockets.a ]; then $(MAKE) -s -C lib/uWebSockets/uSockets; fi
+	@$(CXX) -flto $(CXXFLAGS) $(OBJS) $(LDFLAGS) -o build/server
+	@echo "Success"
+
+build/%.o: src/%.cpp
+	@$(CXX) -flto $(CXXFLAGS) $< -c -o $@
+
+_build:
+	@mkdir -p build
 
 prod:
-	$(MAKE) lib/uWebSockets/uSockets
-	mkdir -p build
-	for FILE in $(patsubst src/%,%,$(FILES)); do $(CXX) -flto -O3 $(CXXFLAGS) src/$$FILE.cpp -c -o build/$$FILE.o ;done
-	$(CXX) -flto -O3 $(CXXFLAGS) $(patsubst src/%,build/%.o,$(FILES)) $(LDFLAGS) -o build/server;
+	@$(MAKE) -s -C lib/uWebSockets/uSockets > /dev/null
+	@mkdir -p build
+	@for FILE in $(patsubst src/%,%,$(FILES)); do $(CXX) -flto -O3 $(CXXFLAGS) src/$$FILE.cpp -c -o build/$$FILE.o ;done
+	@$(CXX) -flto -O3 $(CXXFLAGS) $(patsubst src/%,build/%.o,$(FILES)) $(LDFLAGS) -o build/server;
 
 clean:
 	rm -rf build
